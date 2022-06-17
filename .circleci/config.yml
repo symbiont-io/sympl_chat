@@ -1,6 +1,6 @@
 version: 2.1
-orbs: 
-  assembly-sdk: symbiont-io/assembly-sdk@1.0.0
+orbs:
+  assembly-sdk: symbiont-io/assembly-sdk@1.4.0
 jobs:
   test-api:
     docker:
@@ -41,7 +41,7 @@ jobs:
   test-lang10:
     docker:
       - image: cimg/base:2022.02
-    resource_class: large
+    resource_class: xlarge
     steps:
       - add_ssh_keys:
           fingerprints:
@@ -52,14 +52,12 @@ jobs:
       - assembly-sdk/install_sdk:
           sdk_version: next
           symenvrc: CI_SYMENVRC
-      - run:
-          name: pytest tests
-          command: |
-            sudo apt-get install python3-pip
-            sym local-network start --nodes 4 -l 10
-            DEFAULT_NETWORK_CONFIG="$HOME/.symbiont/assembly-dev/dev-network/default/network-config.json"
-            pip3 install symbiont-io.pytest-assembly~=2.0.4.dev
-            pytest lang10/tests --connection-file "$DEFAULT_NETWORK_CONFIG" --contract-path lang10/contracts --baseline -p no:pytest-mp
+      - assembly-sdk/run_pytest:
+          pytest_version: "2.0.4.dev"
+          contract_path: lang10/contracts
+          test_path: lang10/tests
+          network_num_nodes: 4
+          network_lang_version: 10
 workflows:
   version: 2
   validate_pr:
